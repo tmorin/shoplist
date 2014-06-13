@@ -4,39 +4,59 @@
         <meta charset="utf-8">
         <title>shoplist master</title>
         <meta name="description" content="">
-        <meta name="viewport" content="width=device-width">
+        <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
         <link rel="shortcut icon" href="/favicon.ico">
         <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.css">
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
+
         <!-- build:css styles/vendor.css -->
         <!-- bower:css -->
-
         <!-- endbower -->
         <!-- endbuild -->
         <!-- build:css(.tmp) styles/main.css -->
-        <link rel="stylesheet" href="styles/main.css">
+        <link rel="stylesheet" href="styles/shoplist.css">
         <!-- endbuild -->
+
+        <link rel="import" href="components/sl-app.html">
+
+        <!-- build:js scripts/vendor.js -->
+        <!-- bower:js -->
+        <script src="../bower_components/x-tag-core/lib/web-components-polyfills.js"></script>
+        <script src="../bower_components/x-tag-core/src/core.js"></script>
+        <script src="../bower_components/WeakMap/WeakMap.js"></script>
+        <script src="../bower_components/MutationObserver/MutationObserver.js"></script>
+        <!-- endbower -->
+        <!-- endbuild -->
+
+        <!-- build:js({app,.tmp}) scripts/main.js -->
+        <script src="../bower_components/base64/base64.js"></script>
+        <script src="../bower_components/classlist/classList.js"></script>
+        <script src="../bower_components/html5shiv-dist/html5shiv.js"></script>
+        <script src="../bower_components/requestAnimationFrame-polyfill/requestAnimationFrame.js"></script>
+        <script src="../bower_components/x-mixin-templated/src/x-mixin-templated.js"></script>
+        <script src="../bower_components/HTMLImports/src/html-imports.js"></script>
+
+        <script src="../bower_components/cqrsjs-master/src/cqrs.js"></script>
+
+        <script src="scripts/aggregate-item.js"></script>
+        <script src="scripts/aggregate-suggestion.js"></script>
+        <script src="scripts/component-dispatcher.js"></script>
+        <!-- endbuild -->
+
+        <script>
+            window.addEventListener('HTMLImportsLoaded', function(e) {
+                var slApp = document.createElement('sl-app');
+                document.body.appendChild(slApp);
+            });
+        </script>
     </head>
     <body>
         <!--[if lt IE 10]>
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
-
-
-        <div class="hero-unit">
-          <h1>'Allo, 'Allo!</h1>
-          <p>You now have</p>
-          <ul>
-            <li>HTML5 Boilerplate</li>
-
-
-          </ul>
-        </div>
-
-
-        <!-- build:js scripts/vendor.js -->
-        <!-- bower:js -->
-        <!-- endbower -->
-        <!-- endbuild -->
 
         <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
         <script>
@@ -48,8 +68,5 @@
             ga('create','UA-XXXXX-X');ga('send','pageview');
         </script>
 
-        <!-- build:js({app,.tmp}) scripts/main.js -->
-        <script src="scripts/main.js"></script>
-        <!-- endbuild -->
 </body>
 </html>

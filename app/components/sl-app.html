@@ -1,0 +1,65 @@
+<link rel="import" href="sl-header.html">
+<link rel="import" href="sl-items.html">
+<link rel="import" href="sl-suggestions.html">
+
+<script type="text/template" id="sl-app-tpl">
+    <sl-header></sl-header>
+    <section x-property="view"></section>
+</script>
+
+<script>
+    (function() {
+
+        var owner = document._currentScript.ownerDocument;
+        var tpl = owner.querySelector('#sl-app-tpl').textContent;
+
+        xtag.register('sl-app', {
+            mixins: ['templated'],
+            lifecycle: {
+                created: function() {
+                    this.applyTemplate(tpl);
+                },
+                inserted: function() {
+                    this.cqrs = cqrs({
+                        owner: 'sl-app'
+                    });
+                    this.cqrs.when('showItemsView').invoke(this.showItemsView.bind(this));
+                    this.cqrs.when('showSuggestionsView').invoke(this.showSuggestionsView.bind(this));
+
+                    this.showItemsView();
+                },
+                removed: function() {
+                    this.cqrs.destroy();
+                }
+            },
+            methods: {
+                closeCurrentView: function() {
+                    var children = [].concat.apply([], this.xtag.view.children);
+                    children.forEach(function(child) {
+                        child.parentNode.removeChild(child);
+                    });
+                },
+                showItemsView: function() {
+                    this.closeCurrentView();
+
+                    var slItems = document.createElement('sl-items');
+                    this.xtag.view.appendChild(slItems);
+
+                    setTimeout(function() {
+                        this.cqrs.publish('viewChanged', 'items');
+                    }.bind(this), 0);
+                },
+                showSuggestionsView: function() {
+                    this.closeCurrentView();
+
+                    var slSuggestions = document.createElement('sl-suggestions');
+                    this.xtag.view.appendChild(slSuggestions);
+
+                    setTimeout(function() {
+                        this.cqrs.publish('viewChanged', 'suggestions');
+                    }.bind(this), 0);
+                }
+            }
+        });
+    }());
+</script>

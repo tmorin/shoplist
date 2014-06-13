@@ -1,0 +1,111 @@
+<link rel="import" href="sl-footer.html">
+
+<script type="text/template" id="sl-suggestions-tpl">
+
+<article class="container">
+    <div class="panel panel-default">
+
+    <div class="panel-heading">Suggestions</div>
+
+    <ul x-property="list" class="list-group"></ul>
+
+    </div>
+</article>
+
+<sl-footer>
+    <button class="btn btn-default navbar-btn" x-property="clearBtn">clear</button>
+</sl-footer>
+
+</script>
+
+<script>
+    (function() {
+
+        var owner = document._currentScript.ownerDocument;
+        var tpl = owner.querySelector('#sl-suggestions-tpl').textContent;
+
+        xtag.register('sl-suggestions', {
+            mixins: ['templated'],
+            lifecycle: {
+                created: function() {
+                    this.applyTemplate(tpl);
+                },
+                inserted: function() {
+                    this.cqrs = cqrs({
+                        owner: 'sl-suggestions'
+                    });
+                    this.cqrs.on('suggestionAdded').invoke(this.addSuggestion.bind(this));
+                    this.cqrs.on('suggestionsCleared').invoke(this.clearSuggestions.bind(this));
+
+                    this.loadSuggestions();
+                },
+                removed: function() {
+                    this.cqrs.destroy();
+                }
+            },
+            events: {
+                'click': function(evt) {
+                    var target = evt.target;
+                    if (target === this.xtag.clearBtn) {
+                        evt.preventDefault();
+                        evt.stopPropagation();
+                        this.sendClearSuggestions();
+                    }
+                }
+            },
+            loadSuggestions: function () {
+                return this.cqrs.call('listSuggestions').then(function(suggestions) {
+                    suggestions.forEach(function(suggestion) {
+                        this.cqrs.publish('suggestionAdded', suggestion).then(null, function(error) {
+                            var msg = error && error.message ? error.message : error;
+                            console.warn(error);
+                            alert(msg);
+                        });
+                    }, this);
+                }.bind(this)).then(null, function(error) {
+                    var msg = error && error.message ? error.message : error;
+                    console.warn(error);
+                    alert(msg);
+                });
+            },
+            methods: {
+                loadSuggestions: function () {
+                    return this.cqrs.call('listSuggestions').then(function(suggestions) {
+                        suggestions.forEach(function(suggestion) {
+                            this.cqrs.publish('suggestionAdded', suggestion).then(null, function(error) {
+                                var msg = error && error.message ? error.message : error;
+                                console.warn(error);
+                                alert(msg);
+                            });
+                        }, this);
+                    }.bind(this)).then(null, function(error) {
+                        var msg = error && error.message ? error.message : error;
+                        console.warn(error);
+                        alert(msg);
+                    });
+                },
+                sendClearSuggestions: function() {
+                    if (confirm('Do you really want to clear all suggestions?')) {
+                        this.cqrs.send('clearSuggestions').then(null, function(error) {
+                            var msg = error && error.message ? error.message : error;
+                            console.warn(error);
+                            alert(msg);
+                        });
+                    }
+                },
+                clearSuggestions: function(payload, metadata) {
+                    var children = [].concat.apply([], this.xtag.list.querySelectorAll('li'));
+                    children.forEach(function(li) {
+                        li.parentNode.removeChild(li);
+                    });
+                },
+                addSuggestion: function(suggestion) {
+                    var li = document.createElement('li');
+                    li.textContent = suggestion;
+                    li.classList.add('list-group-item');
+                    this.xtag.list.appendChild(li);
+                }
+            }
+        });
+    }());
+</script>

@@ -1,6 +1,14 @@
 {
   "name": "shoplist-master",
   "private": true,
-  "dependencies": {},
+  "dependencies": {
+    "cqrsjs-master": "git@github.com:tmorin/cqrsjs.git#master",
+    "base64": "~0.3.0",
+    "classlist": "~2013.5.14",
+    "html5shiv-dist": "~3.6.2",
+    "requestAnimationFrame-polyfill": "*",
+    "x-tag-core": "~0.9.7",
+    "x-mixin-templated": "~0.0.1"
+  },
   "devDependencies": {}
 }

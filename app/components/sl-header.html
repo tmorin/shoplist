@@ -1,0 +1,73 @@
+<script type="text/template" id="sl-header-tpl">
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="container">
+
+        <span class="navbar-brand">Shoplist</span>
+
+        <ul class="nav navbar-nav navbar-right">
+            <li x-property="itemsViewBtn">
+            <a href="javascript:;" class="">
+                Items
+            </a>
+            </li>
+            <li x-property="suggestionsViewBtn">
+            <a href="javascript:;" class="">
+                Suggestions
+            </a>
+            </li>
+        </ul>
+
+        </div>
+    </nav>
+</script>
+
+<script>
+    (function() {
+
+        var owner = document._currentScript.ownerDocument;
+        var tpl = owner.querySelector('#sl-header-tpl').textContent;
+
+        xtag.register('sl-header', {
+            mixins: ['templated'],
+            lifecycle: {
+                created: function() {
+                    this.applyTemplate(tpl);
+                },
+                inserted: function() {
+                    this.cqrs = cqrs({
+                        owner: 'sl-header'
+                    });
+                    this.cqrs.on('viewChanged').invoke(this.changeButtonsState.bind(this));
+                },
+                removed: function() {
+                    this.cqrs.destroy();
+                }
+            },
+            events: {
+                'click:delegate([x-property=itemsViewBtn])': function(evt) {
+                    evt.preventDefault();
+                    evt.stopPropagation();
+                    evt.currentTarget.cqrs.send('showItemsView');
+                },
+                'click:delegate([x-property=suggestionsViewBtn])': function(evt) {
+                    evt.preventDefault();
+                    evt.stopPropagation();
+                    evt.currentTarget.cqrs.send('showSuggestionsView');
+                }
+            },
+            methods: {
+                changeButtonsState: function(currentView) {
+                    this.xtag.itemsViewBtn.classList.remove('active');
+                    this.xtag.suggestionsViewBtn.classList.remove('active');
+
+                    if (currentView === 'items') {
+                        itemsCounter = 0;
+                        this.xtag.itemsViewBtn.classList.add('active');
+                    } else if (currentView === 'suggestions') {
+                        this.xtag.suggestionsViewBtn.classList.add('active');
+                    }
+                }
+            }
+        });
+    }());
+</script>

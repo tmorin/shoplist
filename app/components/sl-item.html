@@ -1,0 +1,145 @@
+
+<script type="text/template" id="sl-item-tpl">
+<li class="list-group-item">
+
+    <label class="">
+        <input x-property="bought"
+            type="checkbox"
+            disabled
+            name="bought"
+            title="is item bought?">
+        <span x-property="label"></span>
+    </label>
+
+    <div class="pull-right">
+    <input name="quantity"
+        class=""
+        x-property="quantity"
+        placeholder="quantity"
+        title="the item's quantity"
+        type="number"
+        min="0">
+
+    <button class=""
+            title="remove the item"
+            type="button"
+            x-property="removeBtn">
+        <span class="fa fa-times"></span>
+    </button>
+    </div>
+</li>
+</script>
+
+<script>
+    (function() {
+
+        var owner = document._currentScript.ownerDocument;
+        var tpl = owner.querySelector('#sl-item-tpl').textContent;
+
+        xtag.register('sl-item', {
+            mixins: ['templated'],
+            lifecycle: {
+                created: function() {
+                    this.applyTemplate(tpl);
+                },
+                inserted: function() {
+                    this.cqrs = cqrs({
+                        owner: 'sl-item'
+                    });
+                },
+                removed: function() {
+                    this.cqrs.destroy();
+                }
+            },
+            accessors: {
+                label: {
+                    get: function() {
+                        return this.xtag.label.textContent;
+                    },
+                    set: function(value) {
+                        this.xtag.label.textContent = value;
+                    }
+                },
+                quantity: {
+                    get: function() {
+                        return this.xtag.quantity.value;
+                    },
+                    set: function(value) {
+                        this.xtag.quantity.value = value;
+                    }
+                },
+                bought: {
+                    get: function() {
+                        return this.xtag.bought.checked;
+                    },
+                    set: function(value) {
+                        this.xtag.bought.checked = value;
+                    }
+                }
+            },
+            events: {
+                'click:delegate([x-property=removeBtn])': function(evt) {
+                    evt.stopPropagation();
+                    evt.preventDefault();
+                    evt.currentTarget.sendRemoveItem();
+                },
+                'click:delegate([x-property=quantity])': function(evt) {
+                    evt.stopPropagation();
+                    evt.preventDefault();
+                },
+                'click:preventable()': function(evt) {
+                    evt.stopPropagation();
+                    evt.preventDefault();
+                    evt.currentTarget.sendMarkBoughtOrNotBought();
+                },
+                'change:delegate([x-property=quantity])': function(evt) {
+                    evt.stopPropagation();
+                    evt.preventDefault();
+                    evt.currentTarget.sendCorrectItemQuantity();
+                }
+            },
+            methods: {
+                sendRemoveItem: function() {
+                    if (confirm('Do you really want to remove this item?')) {
+                        this.cqrs.send('removeItem', {
+                            id: this.id
+                        }).then(null, function(error) {
+                            var msg = error && error.message ? error.message : error;
+                            console.warn(error);
+                            alert(msg);
+                        });
+                    }
+                },
+                sendCorrectItemQuantity: function() {
+                    this.cqrs.send('correctItemQuantity', {
+                        id: this.id,
+                        quantity: this.quantity
+                    }).then(null, function(error) {
+                        var msg = error && error.message ? error.message : error;
+                        console.warn(error);
+                        alert(msg);
+                    });
+                },
+                sendMarkBoughtOrNotBought: function() {
+                    if (this.bought) {
+                        this.cqrs.send('markItemNotBought', {
+                            id: this.id
+                        }).then(null, function(error) {
+                            var msg = error && error.message ? error.message : error;
+                            console.warn(error);
+                            alert(msg);
+                        });
+                    } else {
+                        this.cqrs.send('markItemBought', {
+                            id: this.id
+                        }).then(null, function(error) {
+                            var msg = error && error.message ? error.message : error;
+                            console.warn(error);
+                            alert(msg);
+                        });
+                    }
+                }
+            }
+        });
+    }());
+</script>

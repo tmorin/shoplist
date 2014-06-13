@@ -1,0 +1,22 @@
+<script type="text/template" id="sl-footer-tpl">
+    <footer class="navbar navbar-default navbar-fixed-bottom">
+        <div class="container" x-content></div>
+    </footer>
+</script>
+
+<script>
+    (function() {
+
+        var owner = document._currentScript.ownerDocument;
+        var tpl = owner.querySelector('#sl-footer-tpl').textContent;
+
+        xtag.register('sl-footer', {
+            mixins: ['templated'],
+            lifecycle: {
+                created: function() {
+                    this.applyTemplate(tpl);
+                }
+            }
+        });
+    }());
+</script>

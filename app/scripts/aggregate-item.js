@@ -4,6 +4,7 @@
      * localStorage accessors
      */
     var localStorageItemsKey = 'items';
+    var localStorageNextItemIdKey = 'nextItemId';
 
     function loadItems() {
         var json = localStorage.getItem(localStorageItemsKey);
@@ -16,6 +17,17 @@
     function storeItems(items) {
         var json = JSON.stringify(items || []);
         localStorage.setItem(localStorageItemsKey, json);
+    }
+
+    function getNewId() {
+        var nextItemId = localStorage.getItem(localStorageNextItemIdKey);
+        if (nextItemId) {
+            nextItemId = parseInt(nextItemId, 0);
+        } else {
+            nextItemId = 0;
+        }
+        localStorage.setItem(localStorageNextItemIdKey, ++nextItemId);
+        return 'item-' + nextItemId;
     }
 
     /*
@@ -42,6 +54,7 @@
         }
 
         return {
+            id: getNewId(),
             label: label,
             quantity: payload.quantity,
             bought: false
@@ -53,6 +66,7 @@
         var items = loadItems();
 
         items.push({
+            id: payload.id,
             label: payload.label,
             quantity: payload.quantity,
             bought: payload.bought
@@ -66,13 +80,8 @@
      * removeItem and itemRemoved
      */
     function handleRemoveItem(payload, metadata) {
-        var label = payload;
-        if (payload && payload.label) {
-            label = payload.label;
-        }
-
         var item = loadItems().filter(function(item) {
-            return item.label === label;
+            return item.id === payload.id;
         })[0];
 
         if (!item) {
@@ -80,7 +89,7 @@
         }
 
         return {
-            label: item.label
+            id: item.id
         };
     }
     itemAggregate.when('removeItem').invoke(handleRemoveItem).apply('itemRemoved');
@@ -88,7 +97,7 @@
     function handleItemRemoved(payload, metadata) {
         var items = loadItems();
         var item = items.filter(function(item) {
-            return item.label === payload.label;
+            return item.id === payload.id;
         })[0];
 
         var index = items.indexOf(item);
@@ -114,11 +123,42 @@
     itemAggregate.on('itemsCleared').invoke(handleItemsCleared);
 
     /*
+     * clearBoughtItems and itemsRemoved
+     */
+    function handleClearBoughtItems(payload, metadata) {
+        var itemIds = loadItems().filter(function(item) {
+            return item.bought;
+        }).map(function(item) {
+            return item.id;
+        });
+        return {
+            itemIds: itemIds
+        };
+    }
+    itemAggregate.when('clearBoughtItems').invoke(handleClearBoughtItems).apply('itemsRemoved');
+
+    function handleItemsRemoved(payload, metadata) {
+        var items = loadItems();
+
+        (payload.itemIds || []).forEach(function(id) {
+            var item = items.filter(function(item) {
+                return item.id === id;
+            })[0];
+
+            var index = items.indexOf(item);
+            items.splice(index, 1);
+        });
+
+        storeItems(items);
+    }
+    itemAggregate.on('itemsRemoved').invoke(handleItemsRemoved);
+
+    /*
      * correctItemQuantity and itemQuantityCorrected
      */
     function handleCorrectItemQuantity(payload, metadata) {
         var item = loadItems().filter(function(item) {
-            return item.label === payload.label;
+            return item.id === payload.id;
         })[0];
 
         if (!item) {
@@ -127,7 +167,7 @@
 
         if (item.quantity != payload.quantity) {
             return {
-                label: item.label,
+                id: item.id,
                 oldQuantity: item.quantity,
                 newQuantity: payload.quantity
             };
@@ -138,7 +178,7 @@
     function handleItemQuantityCorrected(payload, metadata) {
         var items = loadItems();
         var item = items.filter(function(item) {
-            return item.label === payload.label;
+            return item.id === payload.id;
         })[0];
 
         item.quantity = payload.newQuantity;
@@ -151,13 +191,8 @@
      * markItemBought && itemMarkedBought
      */
     function handleMarkItemBought(payload, metadata) {
-        var label = payload;
-        if (payload && payload.label) {
-            label = payload.label;
-        }
-
         var item = loadItems().filter(function(item) {
-            return item.label === label;
+            return item.id === payload.id;
         })[0];
 
         if (!item) {
@@ -165,7 +200,7 @@
         }
 
         return {
-            label: item.label
+            id: item.id
         };
     }
     itemAggregate.when('markItemBought').invoke(handleMarkItemBought).apply('itemMarkedBought');
@@ -173,7 +208,7 @@
     function handleItemMarkedBought(payload, metadata) {
         var items = loadItems();
         var item = items.filter(function(item) {
-            return item.label === payload.label;
+            return item.id === payload.id;
         })[0];
 
         item.bought = true;
@@ -186,13 +221,8 @@
      * markItemNotBought && itemMarkedNotBought
      */
     function handleMarkItemNotBought(payload, metadata) {
-        var label = payload;
-        if (payload && payload.label) {
-            label = payload.label;
-        }
-
         var item = loadItems().filter(function(item) {
-            return item.label === label;
+            return item.id === payload.id;
         })[0];
 
         if (!item) {
@@ -200,7 +230,7 @@
         }
 
         return {
-            label: item.label
+            id: item.id
         };
     }
     itemAggregate.when('markItemNotBought').invoke(handleMarkItemNotBought).apply('itemMarkedNotBought');
@@ -208,7 +238,7 @@
     function handleItemMarkedNotBought(payload, metadata) {
         var items = loadItems();
         var item = items.filter(function(item) {
-            return item.label === payload.label;
+            return item.id === payload.id;
         })[0];
 
         item.bought = false;
