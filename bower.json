@@ -1,15 +1,19 @@
 {
-  "name": "shoplist-master",
+  "name": "shoplist-master2",
   "private": true,
   "dependencies": {
-    "cqrsjs-master": "git@github.com:tmorin/cqrsjs.git#master",
-    "base64": "~0.3.0",
-    "classlist": "~2013.5.14",
     "requestAnimationFrame-polyfill": "*",
-    "x-tag-core": "~0.9.7",
-    "x-mixin-templated": "~0.0.1",
-    "bootstrap": "~3.1.1",
-    "font-awesome": "~4.1.0"
+    "HTMLImports": "~0.2.3",
+    "classlist": "~2013.5.14",
+    "base64": "~0.3.0",
+    "cqrsjs-master": "git@github.com:tmorin/cqrsjs.git#master",
+    "brick": "~1.0.1",
+    "x-mixin-templated": "~0.0.3",
+    "font-awesome": "~4.1.0",
+    "x-tag-core": "~0.9.7"
   },
-  "devDependencies": {}
+  "devDependencies": {},
+  "resolutions": {
+    "x-tag-core": "~0.9.7"
+  }
 }

@@ -1,4 +1,4 @@
-// Generated on 2014-06-09 using generator-webapp 0.4.9
+// Generated on 2014-06-14 using generator-webapp 0.4.9
 'use strict';
 
 // # Globbing
@@ -163,7 +163,17 @@ module.exports = function (grunt) {
         bowerInstall: {
             app: {
                 src: ['<%= config.app %>/index.html'],
-                exclude: ['bower_components/bootstrap/dist/js/bootstrap.js']
+                exclude: [
+                  'bower_components/x-tag-appbar',
+                    'bower_components/x-tag-appbar',
+                    'bower_components/x-tag-calendar',
+                    'bower_components/x-tag-deck',
+                    'bower_components/x-tag-flipbox',
+                    'bower_components/x-tag-layout',
+                    'bower_components/x-tag-slider',
+                    'bower_components/x-tag-tabbar',
+                    'bower_components/x-tag-toggle'
+                ]
             }
         },
 

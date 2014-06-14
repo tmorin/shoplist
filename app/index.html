@@ -2,47 +2,22 @@
 <html class="no-js">
     <head>
         <meta charset="utf-8">
-        <title>shoplist master</title>
+        <title>Shoplist</title>
         <meta name="description" content="">
-        <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+        <meta name="viewport" content="width=device-width">
         <link rel="shortcut icon" href="/favicon.ico">
         <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
-
         <!-- build:css styles/vendor.css -->
         <!-- bower:css -->
-        <link rel="stylesheet" href="../bower_components/bootstrap/dist/css/bootstrap.css" />
+        <link rel="stylesheet" href="../bower_components/brick/dist/brick.css" />
         <link rel="stylesheet" href="../bower_components/font-awesome/css/font-awesome.css" />
         <!-- endbower -->
         <!-- endbuild -->
         <!-- build:css(.tmp) styles/main.css -->
-        <link rel="stylesheet" href="styles/shoplist.css">
+        <link rel="stylesheet" href="styles/main.css">
         <!-- endbuild -->
 
         <link rel="import" href="components/sl-app.html">
-
-        <!-- build:js scripts/vendor.js -->
-        <!-- bower:js -->
-        <script src="../bower_components/jquery/dist/jquery.js"></script>
-        <script src="../bower_components/x-tag-core/lib/web-components-polyfills.js"></script>
-        <script src="../bower_components/x-tag-core/src/core.js"></script>
-        <script src="../bower_components/WeakMap/WeakMap.js"></script>
-        <script src="../bower_components/MutationObserver/MutationObserver.js"></script>
-        <!-- endbower -->
-        <!-- endbuild -->
-
-        <!-- build:js({app,.tmp}) scripts/main.js -->
-        <script src="../bower_components/base64/base64.js"></script>
-        <script src="../bower_components/classlist/classList.js"></script>
-        <script src="../bower_components/requestAnimationFrame-polyfill/requestAnimationFrame.js"></script>
-        <script src="../bower_components/HTMLImports/src/html-imports.js"></script>
-
-        <script src="../bower_components/x-mixin-templated/src/x-mixin-templated.js"></script>
-        <script src="../bower_components/cqrsjs-master/src/cqrs.js"></script>
-
-        <script src="scripts/aggregate-item.js"></script>
-        <script src="scripts/aggregate-suggestion.js"></script>
-        <script src="scripts/component-dispatcher.js"></script>
-        <!-- endbuild -->
 
         <script>
             window.addEventListener('HTMLImportsLoaded', function(e) {
@@ -50,11 +25,29 @@
                 document.body.appendChild(slApp);
             });
         </script>
+
     </head>
     <body>
         <!--[if lt IE 10]>
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
+
+        <!-- build:js scripts/vendor.js -->
+        <!-- bower:js -->
+        <script src="../bower_components/requestAnimationFrame-polyfill/requestAnimationFrame.js"></script>
+        <script src="../bower_components/WeakMap/WeakMap.js"></script>
+        <script src="../bower_components/MutationObserver/MutationObserver.js"></script>
+        <script src="../bower_components/HTMLImports/src/html-imports.js"></script>
+        <script src="../bower_components/classlist/classList.js"></script>
+        <script src="../bower_components/base64/base64.js"></script>
+        <script src="../bower_components/cqrsjs-master/src/cqrs.js"></script>
+        <script src="../bower_components/x-tag-core/lib/web-components-polyfills.js"></script>
+        <script src="../bower_components/x-tag-core/src/core.js"></script>
+        <script src="../bower_components/x-tag-transitions/src/main.js"></script>
+        <script src="../bower_components/brick/dist/brick.js"></script>
+        <script src="../bower_components/x-mixin-templated/src/x-mixin-templated.js"></script>
+        <!-- endbower -->
+        <!-- endbuild -->
 
         <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
         <script>
@@ -65,6 +58,12 @@
             r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
             ga('create','UA-XXXXX-X');ga('send','pageview');
         </script>
+
+        <!-- build:js({app,.tmp}) scripts/main.js -->
+        <script src="scripts/aggregate-item.js"></script>
+        <script src="scripts/aggregate-suggestion.js"></script>
+        <script src="scripts/component-dispatcher.js"></script>
+        <!-- endbuild -->
 
 </body>
 </html>

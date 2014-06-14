@@ -1,24 +1,17 @@
 <script type="text/template" id="sl-header-tpl">
-    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
-        <div class="container">
-
-        <span class="navbar-brand">Shoplist</span>
-
-        <ul class="nav navbar-nav navbar-right">
-            <li x-property="itemsViewBtn">
+    <h1 class="">Shoplist</h1>
+    <ul class="">
+        <li x-property="itemsViewBtn">
             <a href="javascript:;" class="">
                 Items
             </a>
-            </li>
-            <li x-property="suggestionsViewBtn">
+        </li>
+        <li x-property="suggestionsViewBtn">
             <a href="javascript:;" class="">
                 Suggestions
             </a>
-            </li>
-        </ul>
-
-        </div>
-    </nav>
+        </li>
+    </ul>
 </script>
 
 <script>
@@ -61,7 +54,6 @@
                     this.xtag.suggestionsViewBtn.classList.remove('active');
 
                     if (currentView === 'items') {
-                        itemsCounter = 0;
                         this.xtag.itemsViewBtn.classList.add('active');
                     } else if (currentView === 'suggestions') {
                         this.xtag.suggestionsViewBtn.classList.add('active');
