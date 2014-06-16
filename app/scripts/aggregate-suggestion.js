@@ -28,42 +28,44 @@
     var suggestionAggregate = c.aggregate('suggestion');
 
     /*
-     * addSuggestion and suggestionAdded
+     * Add suggestions
      */
-    function handleAddSuggestion(payload, metadata) {
-        var label = payload.trim();
-
-        var notYetStored = loadSuggestions().filter(function(suggestion) {
-            return suggestion === label;
-        }).length < 1;
-
-        if (notYetStored) {
-            return payload;
-        }
-    }
-    suggestionAggregate.when('addSuggestion').invoke(handleAddSuggestion).apply('suggestionAdded');
-
-    function handleSuggestionAdded(payload, metadata) {
+    function handleAddSuggestions(payload, metadata) {
         var suggestions = loadSuggestions();
-        suggestions.push(payload);
+        return payload.map(function (suggestion) {
+            return suggestion.trim();
+        }, this).filter(function (suggestion) {
+            return suggestions.indexOf(suggestion) < 0;
+        });
+    }
+    suggestionAggregate.when('addSuggestions').invoke(handleAddSuggestions).apply('suggestionsAdded');
+
+    function handleSuggestionsAdded(payload, metadata) {
+        var suggestions = loadSuggestions();
+        payload.forEach(function (suggestion) {
+            suggestions.push(suggestion);
+        }, this);
         storeSuggestions(suggestions);
     }
-    suggestionAggregate.on('suggestionAdded').invoke(handleSuggestionAdded);
+    suggestionAggregate.on('suggestionsAdded').invoke(handleSuggestionsAdded);
 
     /*
-     * clearSuggestions and suggestionsCleared
+     * Remove suggestions
      */
     function handleClearSuggestions(payload, metadata) {
-        return {
-            suggestionsRemoved: loadSuggestions().length
-        };
+        return loadSuggestions();
     }
-    suggestionAggregate.when('clearSuggestions').invoke(handleClearSuggestions).apply('suggestionsCleared');
+    suggestionAggregate.when('clearSuggestions').invoke(handleClearSuggestions).apply('suggestionsRemoved');
 
-    function handleSuggestionsCleared(payload, metadata) {
-        storeSuggestions([]);
+    function handleSuggestionsRemoved(payload, metadata) {
+        var suggestions = loadSuggestions();
+        payload.forEach(function (suggestion) {
+            var index = suggestions.indexOf(suggestion);
+            suggestions.splice(index, 1);
+        }, this);
+        storeSuggestions(suggestions);
     }
-    suggestionAggregate.on('suggestionsCleared').invoke(handleSuggestionsCleared);
+    suggestionAggregate.on('suggestionsRemoved').invoke(handleSuggestionsRemoved);
 
     /*
      * listSuggestions

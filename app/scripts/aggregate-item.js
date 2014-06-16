@@ -19,6 +19,15 @@
         localStorage.setItem(localStorageItemsKey, json);
     }
 
+    function findEntryInList(list, entry) {
+        var result = list.filter(function(i) {
+            return i.id === entry.id;
+        });
+        if (result.length > -1) {
+            return result[0];
+        }
+    }
+
     function getNewId() {
         var nextItemId = localStorage.getItem(localStorageNextItemIdKey);
         if (nextItemId) {
@@ -40,111 +49,89 @@
     var itemAggregate = c.aggregate('item');
 
     /*
-     * addItem and itemAdded
+     * Add items
      */
-    function handleAddItem(payload, metadata) {
-        var label = payload.label.trim();
-
-        var item = loadItems().filter(function(item) {
-            return item.label === label;
-        })[0];
-
-        if (item) {
-            throw new Error('item already in list');
-        }
-
-        return {
-            id: getNewId(),
-            label: label,
-            quantity: payload.quantity,
-            bought: false
-        };
-    }
-    itemAggregate.when('addItem').invoke(handleAddItem).apply('itemAdded');
-
-    function handleItemAdded(payload, metadata) {
+    function handleAddItems(payload, metadata) {
         var items = loadItems();
+        return payload.map(function(entry) {
+            var label = entry.label.trim();
 
-        items.push({
-            id: payload.id,
-            label: payload.label,
-            quantity: payload.quantity,
-            bought: payload.bought
+            var item = items.filter(function(item) {
+                return item.label === label;
+            })[0];
+
+            if (item) {
+                throw new Error('item already in list: ' + label);
+            }
+
+            return {
+                id: getNewId(),
+                label: label,
+                quantity: entry.quantity,
+                bought: false
+            };
+        }, this).filter(function(value) {
+            return value;
         });
-
-        storeItems(items);
     }
-    itemAggregate.on('itemAdded').invoke(handleItemAdded);
+    itemAggregate.when('addItems').invoke(handleAddItems).apply('itemsAdded');
 
-    /*
-     * removeItem and itemRemoved
-     */
-    function handleRemoveItem(payload, metadata) {
-        var item = loadItems().filter(function(item) {
-            return item.id === payload.id;
-        })[0];
-
-        if (!item) {
-            throw new Error('item not in list');
-        }
-
-        return {
-            id: item.id
-        };
-    }
-    itemAggregate.when('removeItem').invoke(handleRemoveItem).apply('itemRemoved');
-
-    function handleItemRemoved(payload, metadata) {
+    function handleItemsAdded(payload, metadata) {
         var items = loadItems();
-        var item = items.filter(function(item) {
-            return item.id === payload.id;
-        })[0];
 
-        var index = items.indexOf(item);
-        items.splice(index, 1);
+        payload.forEach(function(item) {
+            items.push({
+                id: item.id,
+                label: item.label,
+                quantity: item.quantity,
+                bought: item.bought
+            });
+        }, this);
 
         storeItems(items);
     }
-    itemAggregate.on('itemRemoved').invoke(handleItemRemoved);
+    itemAggregate.on('itemsAdded').invoke(handleItemsAdded);
 
     /*
-     * clearItems and itemsCleared
+     * Remove items
      */
+    function handleRemoveItems(payload, metadata) {
+        var items = loadItems();
+
+        return payload.map(function(entry) {
+            if (!findEntryInList(items, entry)) {
+                throw new Error('item not in list: ' + entry.id);
+            }
+            return entry;
+        }, this);
+    }
+    itemAggregate.when('removeItems').invoke(handleRemoveItems).apply('itemsRemoved');
+
     function handleClearItems(payload, metadata) {
-        return {
-            itemsRemoved: loadItems().length
-        };
+        return loadItems().map(function(item) {
+            return {
+                id: item.id
+            };
+        }, this);
     }
-    itemAggregate.when('clearItems').invoke(handleClearItems).apply('itemsCleared');
+    itemAggregate.when('clearItems').invoke(handleClearItems).apply('itemsRemoved');
 
-    function handleItemsCleared(payload, metadata) {
-        storeItems([]);
-    }
-    itemAggregate.on('itemsCleared').invoke(handleItemsCleared);
-
-    /*
-     * clearBoughtItems and itemsRemoved
-     */
     function handleClearBoughtItems(payload, metadata) {
-        var itemIds = loadItems().filter(function(item) {
+        return loadItems().filter(function(item) {
             return item.bought;
         }).map(function(item) {
-            return item.id;
+            return {
+                id: item.id
+            };
         });
-        return {
-            itemIds: itemIds
-        };
     }
     itemAggregate.when('clearBoughtItems').invoke(handleClearBoughtItems).apply('itemsRemoved');
 
     function handleItemsRemoved(payload, metadata) {
         var items = loadItems();
 
-        (payload.itemIds || []).forEach(function(id) {
-            var item = items.filter(function(item) {
-                return item.id === id;
-            })[0];
-
+        payload.forEach(function(entry) {
+            var item = findEntryInList(items, entry);
             var index = items.indexOf(item);
             items.splice(index, 1);
         });
@@ -154,101 +141,104 @@
     itemAggregate.on('itemsRemoved').invoke(handleItemsRemoved);
 
     /*
-     * correctItemQuantity and itemQuantityCorrected
+     * Change quantity
      */
-    function handleCorrectItemQuantity(payload, metadata) {
-        var item = loadItems().filter(function(item) {
-            return item.id === payload.id;
-        })[0];
-
-        if (!item) {
-            throw new Error('item not in list');
-        }
-
-        if (item.quantity != payload.quantity) {
-            return {
-                id: item.id,
-                oldQuantity: item.quantity,
-                newQuantity: payload.quantity
-            };
-        }
-    }
-    itemAggregate.when('correctItemQuantity').invoke(handleCorrectItemQuantity).apply('itemQuantityCorrected');
-
-    function handleItemQuantityCorrected(payload, metadata) {
+    function handleCorrectItemsQuantity(payload, metadata) {
         var items = loadItems();
-        var item = items.filter(function(item) {
-            return item.id === payload.id;
-        })[0];
 
-        item.quantity = payload.newQuantity;
+        return payload.map(function(entry) {
+            var item = findEntryInList(items, entry);
+            if (item) {
+                if (item.quantity != entry.quantity) {
+                    return {
+                        id: item.id,
+                        oldQuantity: item.quantity,
+                        newQuantity: entry.quantity
+                    };
+                }
+            }
+        }).filter(function(item) {
+            return item;
+        });
+    }
+    itemAggregate.when('correctItemsQuantity').invoke(handleCorrectItemsQuantity).apply('itemsQuantityCorrected');
+
+    function handleItemsQuantityCorrected(payload, metadata) {
+        var items = loadItems();
+
+        payload.forEach(function(entry) {
+            var item = findEntryInList(items, entry);
+            item.quantity = entry.newQuantity;
+        }, this);
 
         storeItems(items);
     }
-    itemAggregate.on('itemQuantityCorrected').invoke(handleItemQuantityCorrected);
+    itemAggregate.on('itemsQuantityCorrected').invoke(handleItemsQuantityCorrected);
 
     /*
-     * markItemBought && itemMarkedBought
+     * Mark bought
      */
-    function handleMarkItemBought(payload, metadata) {
-        var item = loadItems().filter(function(item) {
-            return item.id === payload.id;
-        })[0];
-
-        if (!item) {
-            throw new Error('item not in list');
-        }
-
-        return {
-            id: item.id
-        };
-    }
-    itemAggregate.when('markItemBought').invoke(handleMarkItemBought).apply('itemMarkedBought');
-
-    function handleItemMarkedBought(payload, metadata) {
+    function handleMarkItemsBought(payload, metadata) {
         var items = loadItems();
-        var item = items.filter(function(item) {
-            return item.id === payload.id;
-        })[0];
+        return payload.map(function(entry) {
+            var item = findEntryInList(items, entry);
+            if (!item) {
+                throw new Error('item not in list: ' + entry.id);
+            }
+            if (!item.bought) {
+                return {
+                    id: item.id
+                };
+            }
+        }, this).filter(function(value) {
+            return value;
+        });
+    }
+    itemAggregate.when('markItemsBought').invoke(handleMarkItemsBought).apply('itemsMarkedBought');
 
-        item.bought = true;
-
+    function handleItemsMarkedBought(payload, metadata) {
+        var items = loadItems();
+        payload.forEach(function(entry) {
+            var item = findEntryInList(items, entry);
+            item.bought = true;
+        }, this);
         storeItems(items);
     }
-    itemAggregate.on('itemMarkedBought').invoke(handleItemMarkedBought);
+    itemAggregate.on('itemsMarkedBought').invoke(handleItemsMarkedBought);
 
     /*
-     * markItemNotBought && itemMarkedNotBought
+     * *Mark not bought
      */
-    function handleMarkItemNotBought(payload, metadata) {
-        var item = loadItems().filter(function(item) {
-            return item.id === payload.id;
-        })[0];
-
-        if (!item) {
-            throw new Error('item not in list');
-        }
-
-        return {
-            id: item.id
-        };
-    }
-    itemAggregate.when('markItemNotBought').invoke(handleMarkItemNotBought).apply('itemMarkedNotBought');
-
-    function handleItemMarkedNotBought(payload, metadata) {
+    function handleMarkItemsNotBought(payload, metadata) {
         var items = loadItems();
-        var item = items.filter(function(item) {
-            return item.id === payload.id;
-        })[0];
+        return payload.map(function(entry) {
+            var item = findEntryInList(items, entry);
+            if (!item) {
+                throw new Error('item not in list: ' + entry.id);
+            }
+            if (item.bought) {
+                return {
+                    id: item.id
+                };
+            }
+        }, this).filter(function(value) {
+            return value;
+        });
+    }
+    itemAggregate.when('markItemsNotBought').invoke(handleMarkItemsNotBought).apply('itemsMarkedNotBought');
 
-        item.bought = false;
-
+    function handleItemsMarkedNotBought(payload, metadata) {
+        var items = loadItems();
+        payload.forEach(function(entry) {
+            var item = findEntryInList(items, entry);
+            item.bought = false;
+        }, this);
         storeItems(items);
     }
-    itemAggregate.on('itemMarkedNotBought').invoke(handleItemMarkedNotBought);
+    itemAggregate.on('itemsMarkedNotBought').invoke(handleItemsMarkedNotBought);
 
     /*
-     * listItems
+     * List items
      */
     function listItems() {
         return loadItems();
