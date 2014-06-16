@@ -7,10 +7,11 @@
     "classlist": "~2013.5.14",
     "base64": "~0.3.0",
     "cqrsjs-master": "git@github.com:tmorin/cqrsjs.git#master",
-    "brick": "~1.0.1",
+    "x-tag-core": "~0.9.7",
     "x-mixin-templated": "~0.0.3",
     "font-awesome": "~4.1.0",
-    "x-tag-core": "~0.9.7"
+    "bootstrap": "~3.1.1",
+    "brick": "~1.0.1"
   },
   "devDependencies": {},
   "resolutions": {

@@ -164,15 +164,7 @@ module.exports = function (grunt) {
             app: {
                 src: ['<%= config.app %>/index.html'],
                 exclude: [
-                  'bower_components/x-tag-appbar',
-                    'bower_components/x-tag-appbar',
-                    'bower_components/x-tag-calendar',
-                    'bower_components/x-tag-deck',
-                    'bower_components/x-tag-flipbox',
-                    'bower_components/x-tag-layout',
-                    'bower_components/x-tag-slider',
-                    'bower_components/x-tag-tabbar',
-                    'bower_components/x-tag-toggle'
+                  'bower_components/brick/dist/brick.js'
                 ]
             }
         },
