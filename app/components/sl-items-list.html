@@ -1,0 +1,84 @@
+<link rel="import" href="sl-items-entry.html">
+
+<script type="text/template" id="sl-items-list-tpl">
+    <br>
+    <div class="panel panel-default">
+        <div class="panel-heading">Items</div>
+        <div class="list-group" x-property="list"></div>
+    </div>
+</script>
+
+<script>
+    (function() {
+
+        var tpl = document._currentScript.ownerDocument.getElementById('sl-items-list-tpl').innerHTML;
+
+        xtag.register('sl-items-list', {
+            mixins: ['templated'],
+            lifecycle: {
+                created: function () {
+                    this.applyTemplate(tpl);
+                },
+                inserted: function() {
+                    this.cqrs = cqrs({
+                        owner: 'sl-items-list'
+                    });
+                    this.cqrs.on('itemsAdded').invoke(this.addItems.bind(this));
+                    this.cqrs.on('itemsRemoved').invoke(this.removeItems.bind(this));
+                    this.cqrs.on('itemsMarkedBought').invoke(this.markItemsBought.bind(this));
+                    this.cqrs.on('itemsMarkedNotBought').invoke(this.markItemsNotBought.bind(this));
+                    this.cqrs.on('itemsQuantityCorrected').invoke(this.correctItemsQuantity.bind(this));
+                },
+                removed: function() {
+                    this.cqrs.destroy();
+                }
+            },
+            methods: {
+                addItems: function(items) {
+                    items.forEach(function(item) {
+                        var slItem = document.createElement('sl-items-entry');
+                        slItem.id = item.id;
+                        slItem.label = item.label;
+                        slItem.quantity = item.quantity;
+                        slItem.bought = item.bought;
+                        this.xtag.list.appendChild(slItem);
+                    }, this);
+                },
+                removeItems: function(payload) {
+                    payload.forEach(function(entry) {
+                        var slItem = this.xtag.list.querySelector('#' + entry.id);
+                        if (slItem) {
+                            slItem.parentNode.removeChild(slItem);
+                        }
+                    }, this);
+
+                },
+                markItemsBought: function(payload) {
+                    payload.forEach(function(entry) {
+                        var slItem = this.xtag.list.querySelector('#' + entry.id);
+                        if (slItem) {
+                            slItem.bought = true;
+                        }
+                    }, this);
+                },
+                markItemsNotBought: function(payload) {
+                    payload.forEach(function(entry) {
+                        var slItem = this.xtag.list.querySelector('#' + entry.id);
+                        if (slItem) {
+                            slItem.bought = false;
+                        }
+                    }, this);
+                },
+                correctItemsQuantity: function(payload) {
+                    payload.forEach(function(entry) {
+                        var slItem = this.xtag.list.querySelector('#' + entry.id);
+                        if (slItem && slItem.quantity != entry.newQuantity) {
+                            slItem.quantity = entry.newQuantity;
+                        }
+                    }, this);
+                }
+            }
+        });
+
+    }());
+</script>

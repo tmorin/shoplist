@@ -4,13 +4,22 @@
         <meta charset="utf-8">
         <title>Shoplist</title>
         <meta name="description" content="">
-        <meta name="viewport" content="width=device-width">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="shortcut icon" href="/favicon.ico">
         <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
         <!-- build:css styles/vendor.css -->
         <!-- bower:css -->
-        <link rel="stylesheet" href="../bower_components/brick/dist/brick.css" />
         <link rel="stylesheet" href="../bower_components/font-awesome/css/font-awesome.css" />
+        <link rel="stylesheet" href="../bower_components/bootstrap/dist/css/bootstrap.css" />
+        <link rel="stylesheet" href="../bower_components/x-tag-appbar/src/appbar.css" />
+        <link rel="stylesheet" href="../bower_components/x-tag-flipbox/src/flipbox.css" />
+        <link rel="stylesheet" href="../bower_components/x-tag-toggle/src/toggle.css" />
+        <link rel="stylesheet" href="../bower_components/x-tag-calendar/src/calendar.css" />
+        <link rel="stylesheet" href="../bower_components/x-tag-deck/src/deck.css" />
+        <link rel="stylesheet" href="../bower_components/x-tag-layout/src/layout.css" />
+        <link rel="stylesheet" href="../bower_components/x-tag-slider/src/slider.css" />
+        <link rel="stylesheet" href="../bower_components/x-tag-tabbar/src/tabbar.css" />
+        <link rel="stylesheet" href="../bower_components/brick/dist/brick.css" />
         <!-- endbower -->
         <!-- endbuild -->
         <!-- build:css(.tmp) styles/main.css -->
@@ -19,21 +28,17 @@
 
         <link rel="import" href="components/sl-app.html">
 
-        <script>
-            window.addEventListener('HTMLImportsLoaded', function(e) {
-                var slApp = document.createElement('sl-app');
-                document.body.appendChild(slApp);
-            });
-        </script>
-
     </head>
     <body>
+        <div id="app"></div>
+
         <!--[if lt IE 10]>
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
 
         <!-- build:js scripts/vendor.js -->
         <!-- bower:js -->
+        <script src="../bower_components/jquery/dist/jquery.js"></script>
         <script src="../bower_components/requestAnimationFrame-polyfill/requestAnimationFrame.js"></script>
         <script src="../bower_components/WeakMap/WeakMap.js"></script>
         <script src="../bower_components/MutationObserver/MutationObserver.js"></script>
@@ -43,9 +48,17 @@
         <script src="../bower_components/cqrsjs-master/src/cqrs.js"></script>
         <script src="../bower_components/x-tag-core/lib/web-components-polyfills.js"></script>
         <script src="../bower_components/x-tag-core/src/core.js"></script>
-        <script src="../bower_components/x-tag-transitions/src/main.js"></script>
-        <script src="../bower_components/brick/dist/brick.js"></script>
         <script src="../bower_components/x-mixin-templated/src/x-mixin-templated.js"></script>
+        <script src="../bower_components/bootstrap/dist/js/bootstrap.js"></script>
+        <script src="../bower_components/x-tag-appbar/src/appbar.js"></script>
+        <script src="../bower_components/x-tag-flipbox/src/flipbox.js"></script>
+        <script src="../bower_components/x-tag-toggle/src/toggle.js"></script>
+        <script src="../bower_components/x-tag-calendar/src/calendar.js"></script>
+        <script src="../bower_components/x-tag-transitions/src/main.js"></script>
+        <script src="../bower_components/x-tag-deck/src/deck.js"></script>
+        <script src="../bower_components/x-tag-layout/src/layout.js"></script>
+        <script src="../bower_components/x-tag-slider/src/slider.js"></script>
+        <script src="../bower_components/x-tag-tabbar/src/tabbar.js"></script>
         <!-- endbower -->
         <!-- endbuild -->
 
@@ -60,10 +73,11 @@
         </script>
 
         <!-- build:js({app,.tmp}) scripts/main.js -->
+        <script src="scripts/main.js"></script>
         <script src="scripts/aggregate-item.js"></script>
         <script src="scripts/aggregate-suggestion.js"></script>
         <script src="scripts/component-dispatcher.js"></script>
         <!-- endbuild -->
 
-</body>
+    </body>
 </html>

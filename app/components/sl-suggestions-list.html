@@ -1,0 +1,55 @@
+<link rel="import" href="sl-suggestions-entry.html">
+
+<script type="text/template" id="sl-suggestions-list-tpl">
+    <br>
+    <div class="panel panel-default">
+        <div class="panel-heading">Suggestions</div>
+        <div class="list-group" x-property="list"></div>
+    </div>
+</script>
+
+<script>
+    (function() {
+
+        var tpl = document._currentScript.ownerDocument.getElementById('sl-suggestions-list-tpl').innerHTML;
+
+        xtag.register('sl-suggestions-list', {
+            mixins: ['templated'],
+            lifecycle: {
+                created: function () {
+                    this.applyTemplate(tpl);
+                },
+                inserted: function() {
+                    this.cqrs = cqrs({
+                        owner: 'sl-suggestions-list'
+                    });
+
+                    this.cqrs.on('suggestionsAdded').invoke(this.addSuggestions.bind(this));
+                    this.cqrs.on('suggestionsRemoved').invoke(this.removeSuggestions.bind(this));
+                },
+                removed: function() {
+                    this.cqrs.destroy();
+                }
+            },
+            methods: {
+                addSuggestions: function(payload) {
+                    payload.forEach(function(suggestion) {
+                        var slSuggestionEntry = document.createElement('sl-suggestions-entry');
+                        slSuggestionEntry.id = suggestion;
+                        slSuggestionEntry.label = suggestion;
+                        this.xtag.list.appendChild(slSuggestionEntry);
+                    }, this);
+                },
+                removeSuggestions: function(payload) {
+                    payload.forEach(function(suggestion) {
+                        var slSuggestionEntry = this.xtag.list.querySelector('#' + suggestion);
+                        if (slSuggestionEntry) {
+                            slSuggestionEntry.parentNode.removeChild(slSuggestionEntry);
+                        }
+                    }, this);
+                }
+            }
+        });
+
+    }());
+</script>

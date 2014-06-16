@@ -1,0 +1,76 @@
+<link rel="import" href="sl-items-add.html">
+<link rel="import" href="sl-items-list.html">
+
+<script type="text/template" id="sl-view-items-tpl">
+    <x-layout>
+        <section>
+            <div class="container" style="width: 100%;">
+                <sl-items-add></sl-items-add>
+                <sl-items-list></sl-items-list>
+            </div>
+        </section>
+        <footer>
+            <x-appbar>
+                <button x-property="clearBought">
+                    <span class="fa fa-thumbs-up"></span>
+                </button>
+                <button x-property="clearAll">
+                    <span class="fa fa-trash-o"></span>
+                </button>
+            </x-appbar>
+        </footer>
+    </x-layout>
+</script>
+
+<script>
+    (function() {
+
+        var tpl = document._currentScript.ownerDocument.getElementById('sl-view-items-tpl').innerHTML;
+
+        xtag.register('sl-view-items', {
+            mixins: ['templated'],
+            lifecycle: {
+                created: function() {
+                    this.applyTemplate(tpl);
+                },
+                inserted: function() {
+                    this.cqrs = cqrs({
+                        owner: 'sl-view-items'
+                    });
+                },
+                removed: function() {
+                    this.cqrs.destroy();
+                }
+            },
+            events: {
+                'tap:delegate([x-property=clearBought])': function (evt) {
+                    evt.currentTarget.sendClearBoughtItems();
+                },
+                'tap:delegate([x-property=clearAll])': function (evt) {
+                    evt.currentTarget.sendClearItems();
+                }
+            },
+            methods: {
+                sendClearItems: function() {
+                    if (confirm('Do you really want to clear all items?')) {
+                        this.cqrs.send('clearItems').then(null, function(error) {
+                            var msg = error && error.message ? error.message : error;
+                            console.warn(error);
+                            alert(msg);
+                        });
+                    }
+                },
+                sendClearBoughtItems: function() {
+                    if (confirm('Do you really want to clear all bought items?')) {
+                        this.cqrs.send('clearBoughtItems').then(null, function(error) {
+                            var msg = error && error.message ? error.message : error;
+                            console.warn(error);
+                            alert(msg);
+                        });
+                    }
+                },
+            }
+        });
+
+    }());
+</script>

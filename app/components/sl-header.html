@@ -1,65 +1,47 @@
 <script type="text/template" id="sl-header-tpl">
-    <h1 class="">Shoplist</h1>
-    <ul class="">
-        <li x-property="itemsViewBtn">
-            <a href="javascript:;" class="">
-                Items
-            </a>
-        </li>
-        <li x-property="suggestionsViewBtn">
-            <a href="javascript:;" class="">
-                Suggestions
-            </a>
-        </li>
-    </ul>
+    <x-appbar>
+        <h1>Shoplist</h1>
+        <button show-view="sl-view-items" title="the items list">
+            <span class="fa fa-shopping-cart"></span>
+        </button>
+        <button show-view="sl-view-suggestions" title="the suggestions list">
+            <span class="fa fa-tags"></span>
+        </button>
+    </x-appbar>
 </script>
 
 <script>
     (function() {
 
-        var owner = document._currentScript.ownerDocument;
-        var tpl = owner.querySelector('#sl-header-tpl').textContent;
+        var tpl = document._currentScript.ownerDocument.getElementById('sl-header-tpl').innerHTML;
 
         xtag.register('sl-header', {
             mixins: ['templated'],
             lifecycle: {
-                created: function() {
+                created: function () {
                     this.applyTemplate(tpl);
                 },
                 inserted: function() {
                     this.cqrs = cqrs({
                         owner: 'sl-header'
                     });
-                    this.cqrs.on('viewChanged').invoke(this.changeButtonsState.bind(this));
                 },
                 removed: function() {
                     this.cqrs.destroy();
                 }
             },
             events: {
-                'click:delegate([x-property=itemsViewBtn])': function(evt) {
-                    evt.preventDefault();
-                    evt.stopPropagation();
-                    evt.currentTarget.cqrs.send('showItemsView');
-                },
-                'click:delegate([x-property=suggestionsViewBtn])': function(evt) {
-                    evt.preventDefault();
-                    evt.stopPropagation();
-                    evt.currentTarget.cqrs.send('showSuggestionsView');
+                'tap:delegate([show-view])': function (evt) {
+                    var view = this.getAttribute('show-view');
+                    evt.currentTarget.showView(view);
                 }
             },
             methods: {
-                changeButtonsState: function(currentView) {
-                    this.xtag.itemsViewBtn.classList.remove('active');
-                    this.xtag.suggestionsViewBtn.classList.remove('active');
-
-                    if (currentView === 'items') {
-                        this.xtag.itemsViewBtn.classList.add('active');
-                    } else if (currentView === 'suggestions') {
-                        this.xtag.suggestionsViewBtn.classList.add('active');
-                    }
+                showView: function (view) {
+                    this.cqrs.send('showView', view).then(null, console.warn.bind(console));
                 }
             }
         });
+
     }());
 </script>

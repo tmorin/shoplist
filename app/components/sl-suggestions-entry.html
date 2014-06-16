@@ -1,0 +1,42 @@
+
+<script type="text/template" id="sl-suggestions-entry-tpl">
+<h4 class="list-group-item-heading">
+    <span x-property="label"></span>
+</h4>
+</script>
+
+<script>
+    (function() {
+
+        var tpl = document._currentScript.ownerDocument.getElementById('sl-suggestions-entry-tpl').innerHTML;
+
+        xtag.register('sl-suggestions-entry', {
+            mixins: ['templated'],
+            lifecycle: {
+                created: function() {
+                    this.applyTemplate(tpl);
+                    this.classList.add('list-group-item');
+                },
+                inserted: function() {
+                    this.cqrs = cqrs({
+                        owner: 'sl-suggestions-entry'
+                    });
+                },
+                removed: function() {
+                    this.cqrs.destroy();
+                }
+            },
+            accessors: {
+                label: {
+                    get: function() {
+                        return this.xtag.label.textContent;
+                    },
+                    set: function(value) {
+                        this.xtag.label.textContent = value;
+                    }
+                }
+            }
+        });
+
+    }());
+</script>

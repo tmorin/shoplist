@@ -1,0 +1,59 @@
+<link rel="import" href="sl-suggestions-list.html">
+
+<script type="text/template" id="sl-view-suggestions-tpl">
+    <x-layout>
+        <section>
+            <div class="container" style="width: 100%;">
+                <sl-suggestions-list></sl-suggestions-list>
+            </div>
+        </section>
+        <footer>
+            <x-appbar>
+                <button x-property="clearAll">
+                    <span class="fa fa-trash-o"></span>
+                </button>
+            </x-appbar>
+        </footer>
+    </x-layout>
+</script>
+
+<script>
+    (function() {
+
+        var tpl = document._currentScript.ownerDocument.getElementById('sl-view-suggestions-tpl').innerHTML;
+
+        xtag.register('sl-view-suggestions', {
+            mixins: ['templated'],
+            lifecycle: {
+                created: function() {
+                    this.applyTemplate(tpl);
+                },
+                inserted: function() {
+                    this.cqrs = cqrs({
+                        owner: 'sl-view-suggestions'
+                    });
+                },
+                removed: function() {
+                    this.cqrs.destroy();
+                }
+            },
+            events: {
+                'tap:delegate([x-property=clearAll])': function (evt) {
+                    evt.currentTarget.sendClearSuggestions();
+                }
+            },
+            methods: {
+                sendClearSuggestions: function() {
+                    if (confirm('Do you really want to clear all suggestions?')) {
+                        this.cqrs.send('clearSuggestions').then(null, function(error) {
+                            var msg = error && error.message ? error.message : error;
+                            console.warn(error);
+                            alert(msg);
+                        });
+                    }
+                }
+            }
+        });
+
+    }());
+</script>

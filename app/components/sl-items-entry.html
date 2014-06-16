@@ -1,50 +1,52 @@
 
-<script type="text/template" id="sl-item-tpl">
-<li class="">
+<script type="text/template" id="sl-items-entry-tpl">
+<h4 class="list-group-item-heading">
 
+    <div class="checkbox">
     <label class="">
         <input x-property="bought"
-            type="checkbox"
             disabled
+            type="checkbox"
             name="bought"
             title="is item bought?">
         <span x-property="label"></span>
     </label>
+    </div>
 
-    <div class="">
+</h4>
+
+<div class="list-group-item-text form-inline">
     <input name="quantity"
-        class=""
+        class="form-control input-sm"
         x-property="quantity"
         placeholder="quantity"
         title="the item's quantity"
         type="number"
         min="0">
-
-    <button class=""
+    <button class="btn btn-warning btn-sm"
             title="remove the item"
             type="button"
             x-property="removeBtn">
         <span class="fa fa-times"></span>
     </button>
-    </div>
-</li>
+</div>
 </script>
 
 <script>
     (function() {
 
-        var owner = document._currentScript.ownerDocument;
-        var tpl = owner.querySelector('#sl-item-tpl').textContent;
+        var tpl = document._currentScript.ownerDocument.getElementById('sl-items-entry-tpl').innerHTML;
 
-        xtag.register('sl-item', {
+        xtag.register('sl-items-entry', {
             mixins: ['templated'],
             lifecycle: {
                 created: function() {
                     this.applyTemplate(tpl);
+                    this.classList.add('list-group-item');
                 },
                 inserted: function() {
                     this.cqrs = cqrs({
-                        owner: 'sl-item'
+                        owner: 'sl-items-entry'
                     });
                 },
                 removed: function() {
@@ -74,6 +76,12 @@
                     },
                     set: function(value) {
                         this.xtag.bought.checked = value;
+                        if (value) {
+                            this.classList.add('active');
+                        } else {
+                            this.classList.remove('active');
+                        }
+
                     }
                 }
             },
@@ -101,9 +109,9 @@
             methods: {
                 sendRemoveItem: function() {
                     if (confirm('Do you really want to remove this item?')) {
-                        this.cqrs.send('removeItem', {
+                        this.cqrs.send('removeItems', [{
                             id: this.id
-                        }).then(null, function(error) {
+                        }]).then(null, function(error) {
                             var msg = error && error.message ? error.message : error;
                             console.warn(error);
                             alert(msg);
@@ -111,10 +119,10 @@
                     }
                 },
                 sendCorrectItemQuantity: function() {
-                    this.cqrs.send('correctItemQuantity', {
+                    this.cqrs.send('correctItemsQuantity', [{
                         id: this.id,
-                        quantity: this.quantity
-                    }).then(null, function(error) {
+                        quantity: this.xtag.quantity.value
+                    }]).then(null, function(error) {
                         var msg = error && error.message ? error.message : error;
                         console.warn(error);
                         alert(msg);
@@ -122,17 +130,17 @@
                 },
                 sendMarkBoughtOrNotBought: function() {
                     if (this.bought) {
-                        this.cqrs.send('markItemNotBought', {
+                        this.cqrs.send('markItemsNotBought', [{
                             id: this.id
-                        }).then(null, function(error) {
+                        }]).then(null, function(error) {
                             var msg = error && error.message ? error.message : error;
                             console.warn(error);
                             alert(msg);
                         });
                     } else {
-                        this.cqrs.send('markItemBought', {
+                        this.cqrs.send('markItemsBought', [{
                             id: this.id
-                        }).then(null, function(error) {
+                        }]).then(null, function(error) {
                             var msg = error && error.message ? error.message : error;
                             console.warn(error);
                             alert(msg);
@@ -141,5 +149,6 @@
                 }
             }
         });
+
     }());
 </script>
