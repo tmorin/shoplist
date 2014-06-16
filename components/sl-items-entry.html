@@ -1,0 +1,147 @@
+<script type=text/template id=sl-items-entry-tpl><h4 class="list-group-item-heading">
+
+    <div class="checkbox">
+    <label class="">
+        <input x-property="bought"
+            disabled
+            type="checkbox"
+            name="bought"
+            title="is item bought?">
+        <span x-property="label"></span>
+    </label>
+    </div>
+
+</h4>
+
+<div class="list-group-item-text form-inline">
+    <input name="quantity"
+        class="form-control input-sm"
+        x-property="quantity"
+        placeholder="quantity"
+        title="the item's quantity"
+        type="number"
+        min="0">
+    <button class="btn btn-warning btn-sm"
+            title="remove the item"
+            type="button"
+            x-property="removeBtn">
+        <span class="fa fa-times"></span>
+    </button>
+</div></script><script>(function() {
+
+        var tpl = document._currentScript.ownerDocument.getElementById('sl-items-entry-tpl').innerHTML;
+
+        xtag.register('sl-items-entry', {
+            mixins: ['templated'],
+            lifecycle: {
+                created: function() {
+                    this.applyTemplate(tpl);
+                    this.classList.add('list-group-item');
+                },
+                inserted: function() {
+                    this.cqrs = cqrs({
+                        owner: 'sl-items-entry'
+                    });
+                },
+                removed: function() {
+                    this.cqrs.destroy();
+                }
+            },
+            accessors: {
+                label: {
+                    get: function() {
+                        return this.xtag.label.textContent;
+                    },
+                    set: function(value) {
+                        this.xtag.label.textContent = value;
+                    }
+                },
+                quantity: {
+                    get: function() {
+                        return this.xtag.quantity.value;
+                    },
+                    set: function(value) {
+                        this.xtag.quantity.value = value;
+                    }
+                },
+                bought: {
+                    get: function() {
+                        return this.xtag.bought.checked;
+                    },
+                    set: function(value) {
+                        this.xtag.bought.checked = value;
+                        if (value) {
+                            this.classList.add('active');
+                        } else {
+                            this.classList.remove('active');
+                        }
+
+                    }
+                }
+            },
+            events: {
+                'click:delegate([x-property=removeBtn])': function(evt) {
+                    evt.stopPropagation();
+                    evt.preventDefault();
+                    evt.currentTarget.sendRemoveItem();
+                },
+                'click:delegate([x-property=quantity])': function(evt) {
+                    evt.stopPropagation();
+                    evt.preventDefault();
+                },
+                'click:preventable()': function(evt) {
+                    evt.stopPropagation();
+                    evt.preventDefault();
+                    evt.currentTarget.sendMarkBoughtOrNotBought();
+                },
+                'change:delegate([x-property=quantity])': function(evt) {
+                    evt.stopPropagation();
+                    evt.preventDefault();
+                    evt.currentTarget.sendCorrectItemQuantity();
+                }
+            },
+            methods: {
+                sendRemoveItem: function() {
+                    if (confirm('Do you really want to remove this item?')) {
+                        this.cqrs.send('removeItems', [{
+                            id: this.id
+                        }]).then(null, function(error) {
+                            var msg = error && error.message ? error.message : error;
+                            console.warn(error);
+                            alert(msg);
+                        });
+                    }
+                },
+                sendCorrectItemQuantity: function() {
+                    this.cqrs.send('correctItemsQuantity', [{
+                        id: this.id,
+                        quantity: this.xtag.quantity.value
+                    }]).then(null, function(error) {
+                        var msg = error && error.message ? error.message : error;
+                        console.warn(error);
+                        alert(msg);
+                    });
+                },
+                sendMarkBoughtOrNotBought: function() {
+                    if (this.bought) {
+                        this.cqrs.send('markItemsNotBought', [{
+                            id: this.id
+                        }]).then(null, function(error) {
+                            var msg = error && error.message ? error.message : error;
+                            console.warn(error);
+                            alert(msg);
+                        });
+                    } else {
+                        this.cqrs.send('markItemsBought', [{
+                            id: this.id
+                        }]).then(null, function(error) {
+                            var msg = error && error.message ? error.message : error;
+                            console.warn(error);
+                            alert(msg);
+                        });
+                    }
+                }
+            }
+        });
+
+    }());</script>

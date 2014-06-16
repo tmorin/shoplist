@@ -1,0 +1,85 @@
+<script type=text/template id=sl-items-add-tpl><br>
+    <form class="form-inline" submit="return false;">
+        <datalist hidden x-property="suggestionList" id="suggestionList"></datalist>
+
+        <input
+            autocomplete="off"
+            list="suggestionList"
+            name="label"
+            placeholder="tomatoes, milk, ..."
+            type="text"
+            required
+            class="form-control">
+
+        <input
+            name="quantity"
+            placeholder="quantity"
+            type="number"
+            min="0"
+            class="form-control">
+
+        <button class="btn btn-primary" type="submit">
+            <span class="fa fa-plus"></span>
+        </button>
+
+    </form></script><script>(function() {
+
+        var tpl = document._currentScript.ownerDocument.getElementById('sl-items-add-tpl').innerHTML;
+
+        xtag.register('sl-items-add', {
+            mixins: ['templated'],
+            lifecycle: {
+                created: function() {
+                    this.applyTemplate(tpl);
+                },
+                inserted: function() {
+                    this.cqrs = cqrs({
+                        owner: 'sl-items-add'
+                    });
+
+                    this.cqrs.on('suggestionsAdded').invoke(this.addSuggestions.bind(this));
+                    this.cqrs.on('suggestionsRemoved').invoke(this.removeSuggestions.bind(this));
+
+                },
+                removed: function() {
+                    this.cqrs.destroy();
+                }
+            },
+            events: {
+                'submit:delegate(form)': function(evt) {
+                    evt.preventDefault();
+                    evt.currentTarget.sendAddItem({
+                        label: evt.target.label.value,
+                        quantity: evt.target.quantity.value,
+                    });
+                }
+            },
+            methods: {
+                sendAddItem: function(item) {
+                    this.cqrs.send('addItems', [item]).then(function() {
+                        this.xtag.form.reset();
+                    }.bind(this), function(error) {
+                        var msg = error && error.message ? error.message : error;
+                        console.warn(error);
+                        alert(msg);
+                    });
+                },
+                addSuggestions: function(payload) {
+                    payload.forEach(function (suggestion) {
+                        var option = document.createElement('option');
+                        option.value = suggestion;
+                        this.xtag.suggestionList.appendChild(option);
+                    }, this);
+                },
+                removeSuggestions: function (payload, metadata) {
+                    payload.forEach(function (suggestion) {
+                        var option = this.xtag.suggestionList.querySelector('[value=' + suggestion + ']');
+                        if (option) {
+                            option.parentNode.removeChild(option);
+                        }
+                    }, this);
+                }
+            }
+        });
+
+    }());</script>

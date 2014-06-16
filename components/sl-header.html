@@ -1,0 +1,41 @@
+<script type=text/template id=sl-header-tpl><x-appbar>
+        <h1>Shoplist</h1>
+        <button show-view="sl-view-items" title="the items list">
+            <span class="fa fa-shopping-cart"></span>
+        </button>
+        <button show-view="sl-view-suggestions" title="the suggestions list">
+            <span class="fa fa-tags"></span>
+        </button>
+    </x-appbar></script><script>(function() {
+
+        var tpl = document._currentScript.ownerDocument.getElementById('sl-header-tpl').innerHTML;
+
+        xtag.register('sl-header', {
+            mixins: ['templated'],
+            lifecycle: {
+                created: function () {
+                    this.applyTemplate(tpl);
+                },
+                inserted: function() {
+                    this.cqrs = cqrs({
+                        owner: 'sl-header'
+                    });
+                },
+                removed: function() {
+                    this.cqrs.destroy();
+                }
+            },
+            events: {
+                'tap:delegate([show-view])': function (evt) {
+                    var view = this.getAttribute('show-view');
+                    evt.currentTarget.showView(view);
+                }
+            },
+            methods: {
+                showView: function (view) {
+                    this.cqrs.send('showView', view).then(null, console.warn.bind(console));
+                }
+            }
+        });
+
+    }());</script>

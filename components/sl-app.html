@@ -1,0 +1,77 @@
+<link rel=import href=sl-header.html><link rel=import href=sl-view-items.html><link rel=import href=sl-view-suggestions.html><script type=text/template id=sl-app-tpl><x-layout>
+        <header>
+            <sl-header></sl-header>
+        </header>
+        <section>
+                <x-deck x-property="deck">
+                    <x-card transition-type="fade-scale">
+                        <sl-view-items></sl-view-items>
+                    </x-card>
+                    <x-card transition-type="fade-scale">
+                        <sl-view-suggestions></sl-view-suggestions>
+                    </x-card>
+                </x-deck>
+        </section>
+    </x-layout></script><script>(function() {
+
+        var tpl = document._currentScript.ownerDocument.getElementById('sl-app-tpl').innerHTML;
+
+        xtag.register('sl-app', {
+            mixins: ['templated'],
+            lifecycle: {
+                created: function () {
+                    this.applyTemplate(tpl);
+                },
+                inserted: function () {
+                    this.cqrs = cqrs({
+                        owner: 'sl-app'
+                    });
+                    this.cqrs.when('showView').invoke(this.showView.bind(this));
+
+                    this.xtag.deck.showCard(0);
+
+                    this.loadItems().then(function () {
+                        this.loadSuggestions()
+                    }.bind(this));
+                },
+                removed: function () {
+                    this.cqrs.destroy();
+                }
+            },
+            methods: {
+                loadItems: function() {
+                    return this.cqrs.call('listItems').then(function(items) {
+                        this.cqrs.publish('itemsAdded', items).then(null, function(error) {
+                            var msg = error && error.message ? error.message : error;
+                            console.warn(error);
+                            alert(msg);
+                        });
+                    }.bind(this)).then(null, function(error) {
+                        var msg = error && error.message ? error.message : error;
+                        console.warn(error);
+                        alert(msg);
+                    });
+                },
+                loadSuggestions: function() {
+                    return this.cqrs.call('listSuggestions').then(function(suggestions) {
+                        this.cqrs.publish('suggestionsAdded', suggestions).then(null, function(error) {
+                            var msg = error && error.message ? error.message : error;
+                            console.warn(error);
+                            alert(msg);
+                        });
+                    }.bind(this)).then(null, function(error) {
+                        var msg = error && error.message ? error.message : error;
+                        console.warn(error);
+                        alert(msg);
+                    });
+                },
+                showView: function (view) {
+                    var el = this.querySelector(view);
+                    if (el) {
+                        this.xtag.deck.showCard(el.parentNode, 'forward');
+                    }
+                }
+            }
+        });
+
+    }());</script>
