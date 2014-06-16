@@ -286,8 +286,22 @@ module.exports = function (grunt) {
                         '.htaccess',
                         'images/{,*/}*.webp',
                         '{,*/}*.html',
-                        'styles/fonts/{,*/}*.*'
+                        'styles/fonts/{,*/}*.*',
+                        '/bower_components/font-awesome/fonts/{,*/}*.*',
+                        '/bower_components/bootstrap/dist/fonts/{,*/}*.*'
                     ]
+                },{
+                    expand: true,
+                    dot: false,
+                    cwd: 'bower_components/font-awesome',
+                    dest: '<%= config.dist %>',
+                    src: ['fonts/{,*/}*.*']
+                },{
+                    expand: true,
+                    dot: false,
+                    cwd: 'bower_components/bootstrap/dist',
+                    dest: '<%= config.dist %>',
+                    src: ['fonts/{,*/}*.*']
                 }]
             },
             styles: {
@@ -312,6 +326,14 @@ module.exports = function (grunt) {
                 'imagemin',
                 'svgmin'
             ]
+        },
+
+        // push dist directory online
+        'gh-pages': {
+            options: {
+                base: 'dist'
+            },
+            src: ['**']
         }
     });
 
