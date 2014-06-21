@@ -334,6 +334,13 @@ module.exports = function (grunt) {
                 base: 'dist'
             },
             src: ['**']
+        },
+
+        firefoxManifest: {
+            options: {
+                manifest: ' dist/manifest.webapp'
+            },
+            default: {}
         }
     });
 
@@ -383,7 +390,8 @@ module.exports = function (grunt) {
         'copy:dist',
         'rev',
         'usemin',
-        'htmlmin'
+        'htmlmin',
+        'firefoxManifest'
     ]);
 
     grunt.registerTask('default', [
