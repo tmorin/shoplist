@@ -164,7 +164,7 @@ module.exports = function (grunt) {
             app: {
                 src: ['<%= config.app %>/index.html'],
                 exclude: [
-                  'bower_components/brick/dist/brick.js'
+                    'bower_components/brick/dist/brick.js'
                 ]
             }
         },
@@ -331,14 +331,24 @@ module.exports = function (grunt) {
         // push dist directory online
         'gh-pages': {
             options: {
-                base: 'dist'
+                base: '<%= config.dist %>'
             },
             src: ['**']
         },
 
+        appcache: {
+            options: {
+                basePath: '<%= config.dist %>'
+            },
+            dist: {
+                dest: '<%= config.dist %>/manifest.appcache',
+                cache: '<%= config.dist %>/**/*'
+            }
+        },
+
         firefoxManifest: {
             options: {
-                manifest: ' dist/manifest.webapp'
+                manifest: '<%= config.dist %>/manifest.webapp'
             },
             default: {}
         }
@@ -391,6 +401,7 @@ module.exports = function (grunt) {
         'rev',
         'usemin',
         'htmlmin',
+        'appcache:dist',
         'firefoxManifest'
     ]);
 
