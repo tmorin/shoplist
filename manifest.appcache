@@ -1,0 +1,29 @@
+CACHE MANIFEST
+# rev 1 - 2014-06-21T16:15:01.855Z
+
+CACHE:
+404.html
+6df2b309.favicon.ico
+components/sl-app.html
+components/sl-header.html
+components/sl-items-add.html
+components/sl-items-entry.html
+components/sl-items-list.html
+components/sl-suggestions-entry.html
+components/sl-suggestions-list.html
+components/sl-view-items.html
+components/sl-view-suggestions.html
+fonts/FontAwesome.otf
+fonts/fontawesome-webfont.eot
+fonts/fontawesome-webfont.svg
+fonts/fontawesome-webfont.ttf
+fonts/fontawesome-webfont.woff
+fonts/glyphicons-halflings-regular.eot
+fonts/glyphicons-halflings-regular.svg
+fonts/glyphicons-halflings-regular.ttf
+fonts/glyphicons-halflings-regular.woff
+index.html
+robots.txt
+scripts/41b621e5.vendor.js
+scripts/b8721d6f.main.js
+styles/9083738a.vendor.css
