@@ -1,6 +1,8 @@
 (function(global) {
 
-    var c = cqrs({
+    'use strict';
+
+    var c = global.cqrs({
         owner: 'component-dispatcher'
     });
 
@@ -10,7 +12,7 @@
                 return item.label;
             });
             c.send('addSuggestions', suggestions, metadata).then(null, function(error) {
-                alert('unable to add a suggestion\n' + error.message);
+                global.alert('unable to add a suggestion\n' + error.message);
                 console.warn('unable to add a suggestion');
                 console.warn(error);
             });

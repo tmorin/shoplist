@@ -1,5 +1,7 @@
 (function(global) {
 
+    'use strict';
+
     /*
      * localStorage accessors
      */
@@ -42,7 +44,7 @@
     /*
      * cqrs setup
      */
-    var c = cqrs({
+    var c = global.cqrs({
         owner: 'aggregate-item'
     });
 
@@ -149,7 +151,7 @@
         return payload.map(function(entry) {
             var item = findEntryInList(items, entry);
             if (item) {
-                if (item.quantity != entry.quantity) {
+                if (parseInt(item.quantity) !== parseInt(entry.quantity)) {
                     return {
                         id: item.id,
                         oldQuantity: item.quantity,

@@ -1,5 +1,7 @@
 (function(global) {
 
+    'use strict';
+
     /*
      * localStorage accessors
      */
@@ -21,7 +23,7 @@
     /*
      * cqrs setup
      */
-    var c = cqrs({
+    var c = global.cqrs({
         owner: 'aggregate-suggestion'
     });
 
